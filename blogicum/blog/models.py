@@ -5,9 +5,20 @@ from core.models import BaseModel
 
 User = get_user_model()
 
+MAX_LENGTH = 256
 
-class Category(BaseModel):
-    title = models.CharField(max_length=256, verbose_name='Заголовок')
+
+class TitleModel(models.Model):
+    title = models.CharField(
+        max_length=MAX_LENGTH,
+        verbose_name='Заголовок',
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Category(TitleModel, BaseModel):
     description = models.TextField(verbose_name='Описание')
     slug = models.SlugField(
         unique=True,
@@ -27,7 +38,10 @@ class Category(BaseModel):
 
 
 class Location(BaseModel):
-    name = models.CharField(max_length=256, verbose_name='Название места')
+    name = models.CharField(
+        max_length=MAX_LENGTH,
+        verbose_name='Название места',
+    )
 
     class Meta:
         verbose_name = "местоположение"
@@ -37,8 +51,7 @@ class Location(BaseModel):
         return self.name
 
 
-class Post(BaseModel):
-    title = models.CharField(max_length=256, verbose_name='Заголовок')
+class Post(TitleModel, BaseModel):
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
         verbose_name='Дата и время публикации',
@@ -69,6 +82,7 @@ class Post(BaseModel):
     class Meta:
         verbose_name = "публикация"
         verbose_name_plural = "Публикации"
+        ordering = ['-pub_date']
 
     def __str__(self):
         return self.title
