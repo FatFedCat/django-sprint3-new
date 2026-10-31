@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from core.models import BaseModel
 
@@ -51,6 +52,15 @@ class Location(BaseModel):
         return self.name
 
 
+class PostManager(models.Manager):
+    def published(self):
+        return self.get_queryset().filter(
+            pub_date__lte=timezone.now(),
+            is_published=True,
+            category__is_published=True,
+        )
+
+
 class Post(TitleModel, BaseModel):
     text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
@@ -79,10 +89,12 @@ class Post(TitleModel, BaseModel):
         verbose_name='Категория',
     )
 
+    objects = PostManager()
+
     class Meta:
         verbose_name = "публикация"
         verbose_name_plural = "Публикации"
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.title
